@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+
+
+<title>Stack</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-5.0.13/css/fa-svg-with-js.css" rel="stylesheet" />
+<script src="site_libs/font-awesome-5.0.13/js/fontawesome-all.min.js"></script>
+<script src="site_libs/font-awesome-5.0.13/js/fa-v4-shims.min.js"></script>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+
+<div class="container-fluid main-container">
+
+<!-- tabsets -->
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+</script>
+
+<!-- code folding -->
+
+
+
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+  padding-left: 25px;
+  text-indent: 0;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">FOSSOS</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Syllabus</a>
+</li>
+<li>
+  <a href="stack.html">Stack</a>
+</li>
+<li>
+  <a href="http://www.maxheld.de">Instructor</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    <span class="fa fa-university"></span>
+     
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="http://univis.fau.de/">UnivIS</a>
+    </li>
+    <li>
+      <a href="https://www.campus.uni-erlangen.de/">meincampus</a>
+    </li>
+    <li>
+      <a href="https://www.studon.fau.de/crs2139506.html">studOn</a>
+    </li>
+    <li>
+      <a href="https://www.soziologie.phil.fau.de)">Institut für Soziologie</a>
+    </li>
+    <li>
+      <a href="https://www.ncatec.de">Nuremberg Campus of Technology</a>
+    </li>
+  </ul>
+</li>
+<li>
+  <a href="https://github.com/maxheld83/fossos">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">Stack</h1>
+<h4 class="author"><em>Maximilian Held</em></h4>
+<address class="author_afil">
+Friedrich-Alexander Universität Erlangen-Nürnberg (FAU)<br><h4 class="date"><em>30 October, 2018</em></h4>
+
+</div>
+
+
+<p>Here’s the software and services stack we’ll be using.</p>
+<p>This is by no means the <em>only</em> way to do open science or data science with open source software, and recommended packages are likely to change over time. The below R-based toolchain should be considered as merely <em>one</em> (out of several) consistent implementations of some best practices. However, once participants have mastered this toolchain, they should find it relatively easy to adapt to other ecosystems.</p>
+<p>All of the software will be <a href="https://en.wikipedia.org/wiki/Free_and_open-source_software">free and open source software</a>, but we will also be using some proprietary Software-as-a-Service (<a href="https://en.wikipedia.org/wiki/Software_as_a_service">Saas</a>). For each of the proprietary services, there <em>are</em> open-source and/or self-hosted alternatives, but these are often much less convenient (e.g. <a href="https://jenkins.io">self-hosted Jenkins</a> vs <a href="https://travis-ci.com">Travis CI</a>), or they are much less popular in the community, and therefore less useful (e.g. <a href="GitLab" class="uri">GitLab</a> vs <a href="https://github.com">GitHub</a>). Relying on, or pushing proprietary services, especially in an education context, is always awkward, but the disadvantages can sometimes be outweighted by convenience and network effect advantages. For some aspects of open source software development and open science, proprietary services – especially GitHub and the <a href="https://stackoverflow.com">StackExchange network</a> – for better or for worse just <em>are</em> the only game in town. In any event, <em>most</em> of what students will learn in this class is in free and open source software, and the remaining proprietary usage should easily translate to other, competing or open services.</p>
+<div id="installation" class="section level2 alert alert-success">
+<h2>Installation</h2>
+<p>Please install all of the below software and sign up for all the below services <strong>before the first class</strong>.</p>
+<p>The steps required for installation will depend on your platform and system setup. Please understand that we cannot support or troubleshoot these installations during class; there, however, are ample resources on the internet for troubleshooting an installation.</p>
+</div>
+<div id="operating-system-maintenance" class="section level2 alert alert-warning">
+<h2>Operating System Maintenance</h2>
+<p>It is <em>your</em> responsibility to maintain your own computer and operating system (OS), as well as to figure out how to install the below software on your machine (though we will all help one another within reason).</p>
+</div>
+<div id="cloud-alternative" class="section level2">
+<h2>Cloud Alternative</h2>
+<p>As a backup plan to using your own operating system, you may use <a href="https://rstudio.cloud">RStudio Cloud</a>, a data science Saas. RStudio Cloud furnishes you with a ready RStudio session in a virtual machine with all necessary system dependencies. You will still have sign up to all of the <em>services</em> in the below, but none of the client <em>software</em>.</p>
+<p>RStudio Cloud is still in <em>alpha</em> and may not be always reliable. Once out of alpha, it will also be a paid service, for which you may have to pay yourself.</p>
+<p>You are strongly encouraged to invest the time and effort to set up and maintain a development environment on your own computer.</p>
+</div>
+<div id="tools-and-resources" class="section level2">
+<h2>Tools and Resources</h2>
+<div id="basic-computing-literacy" class="section level3">
+<h3>Basic Computing Literacy</h3>
+<div class="alert alert-info" role="alert">
+<p>… is expected. To <em>start</em> this class you need to know your way around your own computer and commonly used technologies.</p>
+</div>
+<p>You should know, or easily find, the answer to questions such as:</p>
+<ul>
+<li><em>In what directory (absolute path) are programs I use daily stored on computer?</em></li>
+<li><em>What is the OS and version on my computer?</em></li>
+<li><em>In what directory (absolute path) do I store my files?</em></li>
+<li><em>Do I have privileges to install software? If not, how can I get them?</em></li>
+<li><em>Which file format is better suited to editing: A <code>*.docx</code> or a <code>*.pdf</code>?</em></li>
+<li><em>Why do the search queries <code>jaguar car</code> and <code>jaguar -car</code> give different results on Google?</em></li>
+<li><em>I can name at least 10 file types.</em></li>
+<li><em>What is the username I usually use on public-facing platforms?</em></li>
+<li><em>What is Two-Factor Authentification? (2FA)?</em></li>
+<li><em>How is my harddisc formatted?</em></li>
+<li><em>How can I upgrade my OS and frequently used software?</em></li>
+<li><em>How is the data on my computer protected from unauthorised access?</em></li>
+<li><em>What is my backup plan?</em></li>
+<li><em>What is a VPN client, and what do I need it for?</em></li>
+</ul>
+<p>If you feel like you need to brush up on some basic computing skills, these resources might be helpful:</p>
+<ul>
+<li><a href="https://edu.gcfglobal.org/en/basic-computer-skills/">Basic Computer Skills</a></li>
+<li>WikiHow <a href="https://www.wikihow.com/Category:Basic-Computer-Skills">Basic Computer Skills</a></li>
+<li>Tech Republic <a href="https://www.techrepublic.com/blog/10-things/10-things-you-have-to-know-to-be-computer-literate/">10 things…</a></li>
+<li>Viking Code School <a href="http://www.vikingcodeschool.com/web-development-basics/terms-to-know">Terms to know</a></li>
+<li>… just google the answers to the above questions.</li>
+</ul>
+</div>
+<div id="project-management" class="section level3">
+<h3>Project Management</h3>
+<p><a class="btn btn-primary" href="https://github.com" role="button">Sign up to GitHub.com</a></p>
+<p>GitHub is a collaboration platform, code repository and git host (more on all of below) <em>along with some helpful project management tools</em>.</p>
+<div class="alert alert-info" role="alert">
+<p>Choose your username carefully: it should be easy to type, and clearly identify you. If you already have such a public username on other platforms (say, twitter), consider reusing that. Your username need not be your real name, but it makes things easier if it includes (parts of) your name.</p>
+</div>
+<div class="alert alert-warning" role="alert">
+<p>Also be careful in choosing your <a href="https://help.github.com/articles/about-commit-email-addresses/">commit email address</a>. This should be an email account you have access to forever.</p>
+</div>
+<div class="alert alert-success" role="alert">
+<p>… and one last thing: By default, GitHub will notify you via E-Mail about pretty much every repository activity, which will result in a <em>lot</em> of email. Here’s how you can customize or disable <a href="https://help.github.com/articles/choosing-the-delivery-method-for-your-notifications/">these notifications</a>. Make sure that you’re not missing anything on GitHub.com either.</p>
+<p>Here’s a sensible set of defaults:</p>
+<div class="figure">
+<img src="img/notifications.png" alt="Screenshot from github.com/settings/notifications" />
+<p class="caption">Screenshot from <a href="https://github.com/settings/notifications"><code>github.com/settings/notifications</code></a></p>
+</div>
+</div>
+<div id="resources" class="section level4">
+<h4>Resources</h4>
+<ul>
+<li><a href="https://www.youtube.com/watch?v=noZnOSpcjYY">Getting Started with GitHub Video</a></li>
+<li><a href="https://guides.github.com/features/issues/">Mastering Issues</a></li>
+<li><a href="https://help.github.com/articles/working-with-advanced-formatting/">Advanced Formatting on GitHub</a></li>
+<li><a href="https://help.github.com/categories/setting-up-and-managing-your-github-profile/">Your profile</a></li>
+<li><a href="https://wiredcraft.com/blog/how-we-write-our-github-issues">How to write good issues</a></li>
+</ul>
+</div>
+</div>
+<div id="community-help" class="section level3">
+<h3>Community &amp; Help</h3>
+<p><a class="btn btn-primary" href="https://stackoverflow.com" role="button">Sign up to StackOverflow</a> <a class="btn btn-primary" href="http://community.rstudio.com" role="button">Sign up to RStudio community</a></p>
+<div class="alert alert-info" role="alert">
+<p>This includes setting up a decent profile with picture, links etc. Same username suggestions apply as above.</p>
+</div>
+<p>Aside from Google, these are two great places to get help, and to get involved in the community.</p>
+<p>A lot of volunteers spend a lot of time on these sites, so it is very important not to waste their efforts, and to <em>only add quality content</em>, as defined by these sites.</p>
+<div id="resources-1" class="section level4">
+<h4>Resources</h4>
+<ul>
+<li>SE: <a href="https://stackoverflow.com/help/how-to-ask">How to ask a good question</a></li>
+<li>wikiHow: <a href="https://www.wikihow.com/Ask-a-Question-on-Stack-Overflow">How to ask a question…</a></li>
+<li>SE: <a href="https://stackoverflow.com/help/behavior">Code of conduct</a></li>
+<li>SE: <a href="https://stackoverflow.com/help/promotion">How not to be a spammer</a></li>
+<li>SE: <a href="https://stackoverflow.com/help/asking">Help re: asking</a></li>
+<li>SE: <a href="https://stackoverflow.com/help/answering">Help re: answering</a></li>
+<li>Community: <a href="https://community.rstudio.com/t/welcome-to-the-rstudio-community/8">Welcome</a></li>
+<li>SE: <a href="https://stackoverflow.com/questions/5963269/how-to-make-a-great-r-reproducible-example">Making a great R reprex</a></li>
+<li>Tidyverse <a href="https://reprex.tidyverse.org">reprex package</a></li>
+</ul>
+</div>
+<div id="additional-resources" class="section level4">
+<h4>Additional Resources</h4>
+<p>In addition to StackExchange and RStudio Community, there are a couple of other platforms where the (very friendly) R community hangs out:</p>
+<ul>
+<li><a href="https://twitter.com">Twitter</a> <code>#rstats</code> hashtag. Consider joining!</li>
+<li>Reddit subreddits:
+<ul>
+<li><a href="https://www.reddit.com/r/datascience/" class="uri">https://www.reddit.com/r/datascience/</a></li>
+<li><a href="https://www.reddit.com/r/RStudio/" class="uri">https://www.reddit.com/r/RStudio/</a></li>
+<li><a href="https://www.reddit.com/r/Rlanguage/" class="uri">https://www.reddit.com/r/Rlanguage/</a></li>
+<li><a href="https://www.reddit.com/r/rstats/" class="uri">https://www.reddit.com/r/rstats/</a></li>
+</ul></li>
+<li><a href="http://lineardigressions.com">Linear Digressions</a> Podcast</li>
+<li><a href="https://dataskeptic.com/">Data Skeptic</a> Podcast</li>
+<li><a href="https://rweekly.org">R Weekly</a> Blog</li>
+<li><a href="https://rviews.rstudio.com">R Views</a> Blog</li>
+</ul>
+</div>
+</div>
+<div id="cloud-provider" class="section level3">
+<h3>Cloud Provider</h3>
+<p><a class="btn btn-primary" href="https://rstudio.cloud" role="button">Sign up to RStudio Cloud</a></p>
+<div class="alert alert-warning role="alert">
+It's best to sign up with your GitHub account, but this *does not* give your RStudio Cloud instance read or write privileges to your repos.
+Remember to also configure <a href="https://maurolepore.github.io/cloudgithub/">RStudio Cloud with your git credentials</a>.
+</div>
+<p>Resources:</p>
+<ul>
+<li><a href="https://rstudio.cloud/learn/guide">RStudio Cloud guide</a></li>
+<li>All resources listed under <a href="#ide">RStudio</a></li>
+</ul>
+</div>
+<div id="markup-language" class="section level3">
+<h3>Markup Language</h3>
+<p><a class="btn btn-default" href="https://github.github.com/gfm/" role="button">GitHub Flavored Markdown Spec</a></p>
+<p>The full <a href="https://github.github.com/gfm/">GFM spec</a> is just FYI; there’s nothing to install here.</p>
+<p>Plain text has many advantages (more on that later), but one glaring disadvantage: it does not look very nice, and does not implement many of the typesetting conventions that have evolved since Gutenberg (say, <strong>bold</strong> face).</p>
+<p>Markup syntaxes solve this problem. Markup syntaxes are sets of conventions (as in <code>*something*</code> for highlighting) to structure human-generated <em>text</em> in a way that computers can operate on them, such as formatting a piece of text.</p>
+<p>There are many, many, such markup languages out there, including <strong>HTML</strong> but also <strong>Markdown</strong> and <strong>LaTeX</strong>.</p>
+<p>We will be focusing on Markdown as a source language, and then use open source tools (especially <strong>Pandoc</strong>), to render our source documents to all sorts of other formats, including PDF (via LaTeX), HTML (such as this website), but also Microsoft Word documents.</p>
+<p>Markdown is a very lightweight markup language, that was designed to be maximally <em>human readable</em>, that is, looking meaningful <em>without</em> being compiled by a computer. Most of the syntax takes its clues from how people have already formatted plain text, such as enclosing a <code>*word*</code> with <code>*</code> for <em>highlighting</em>.</p>
+<p>Technically, Markdown is a convention for writing such files, as well as a program to convert such files into <code>HMTL</code>, as, for example, this website (which is written in a flavor of Markdown).</p>
+<p>By convention, Markdown files use the <code>.md</code> file extension. It’s important to recognize that still, an <code>.md</code> is a <em>plain text file</em>. You could open it with any text editor, or even change the extension to <code>*.txt</code> and nothing would change. The extension <code>.md</code> serves merely to tell computers that the following plain text is marked up in markdown.</p>
+<p>Markdown was (originally) quite a minimal standard, and has since branched out into a few specialised “flavors”, offering additional features.</p>
+<p>We will be using only <em>two</em> of these flavors: GitHub Flavored Markdown and Pandoc’s Markdown (more on that below).</p>
+<p>GitHub, a leading code-hosting service, has extended the above original Markdown spec by a couple of additional features. In addition to these formatting niceties, Github also implements some clever cross-referencing and autocompletion magic. When using Github for source control and collaboration, you <em>really</em> must use these in issues, comments, commit messages etc. (they work <em>everywhere</em>).</p>
+<div id="resources-2" class="section level4">
+<h4>Resources</h4>
+<ul>
+<li><a href="https://help.github.com/articles/markdown-basics">Markdown Basics</a></li>
+<li><a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet">GFM Cheat Sheet</a></li>
+<li>Original <a href="https://daringfireball.net/projects/markdown/">Markdown Spec</a> by John Gruber, who invented the syntax.</li>
+<li><a href="https://guides.github.com/features/mastering-markdown/">Mastering Markdown</a></li>
+<li><a href="https://www.markdowntutorial.com">Markdown Tutorial</a></li>
+<li><a href="https://help.github.com/articles/github-flavored-markdown">GFM</a></li>
+<li><a href="https://help.github.com/articles/writing-on-github">Writing on GitHub</a></li>
+</ul>
+</div>
+<div id="additional-resources-1" class="section level4">
+<h4>Additional Resources</h4>
+<p>If you like, you can also install a program on your computer to render Markdown to HTML. There are <a href="http://mashable.com/2013/06/24/markdown-tools/">plenty</a> of choices, including the free <a href="http://markdownpad.com">MarkdownPad</a> for Windows, and <a href="http://clockworkengine.com/lightpaper-mac/">Lightpaper</a> for OS X. If you don’t want to install something, <a href="https://github.com">Github</a> (see below) also offers a Markdown preview in its browser-based editor. We will be using different programs going forward.</p>
+</div>
+</div>
+<div id="command-line-interface" class="section level3">
+<h3>Command Line Interface</h3>
+<p><a class="btn btn-info" href="https://en.wikipedia.org/wiki/Bash_(Unix_shell)" role="button">Install Bash Shell</a></p>
+<p>The bash shell is the standard Unix-style command-line interface (CLI). A lot of programs that we’ll be using only run at the CLI, so it’s important to know how to use it. It is also often used in scripting (= automating) tasks.</p>
+<p>On <strong>macOS</strong>, <strong>Linux</strong>: Nothing to install, ships with bash.</p>
+<p>On <strong>Windows</strong>:</p>
+<ul>
+<li>If your version is &gt;= Windows 10 Anniversary Update: Install <a href="https://docs.microsoft.com/en-us/windows/wsl/install-win10">Install the Windows Subsystem for Linux (WSL)</a> and use the <a href="https://www.howtogeek.com/249966/how-to-install-and-use-the-linux-bash-shell-on-windows-10/">Windows 10 Bash Shell</a>.</li>
+<li>Otherwise, install <a href="https://gitforwindows.org">Git for Windows</a> because that comes with at least a git shell</li>
+</ul>
+<div id="resources-3" class="section level4">
+<h4>Resources</h4>
+<ul>
+<li><a href="https://learntocodewith.me/getting-started/topics/command-line/">Command Line for Beginners</a></li>
+<li>Viking Code School <a href="http://www.vikingcodeschool.com/web-development-basics/a-command-line-crash-course">Command Line crash course</a></li>
+</ul>
+</div>
+<div id="additional-resources-2" class="section level4">
+<h4>Additional Resources</h4>
+<ul>
+<li>Learn enough <a href="https://www.learnenough.com/command-line-tutorial">Command line tutorial</a></li>
+<li>Codecademy course <a href="https://www.codecademy.com/learn/learn-the-command-line">Learn the Command Line</a> (offers a free tier)</li>
+<li>DataCampcourse <a href="https://www.datacamp.com/courses/introduction-to-shell-for-data-science">Introduction to Shell for Data Science</a></li>
+</ul>
+</div>
+</div>
+<div id="package-management" class="section level3">
+<h3>Package Management</h3>
+<p><a class="btn btn-default" href="https://en.wikipedia.org/wiki/APT_(Debian)" role="button">Linux: already ships with <code>apt</code></a> <a class="btn btn-info" href="https://brew.sh" role="button">macOS: install home<code>brew</code></a> <a class="btn btn-info" href="https://chocolatey.org" role="button">Windows: install chocolatey</a></p>
+<p>Installing and upgrading a lot of command line tools and their dependencies gets old quickly. Package managers solve this problem; they provide a clean and elegant way to install (CLI) programs, and even allow you to quickly upgrade everything.</p>
+<div class="alert alert-warning" role="alert">
+<p>Consider installing the below software via your package manager. Whether this is advisable or even possible for any given piece of software depends on the software and your operating system. Google around for advice. As a rule of thumb, “heavy” packages (such as LaTeX) are sometimes best installed “by hand”.</p>
+</div>
+<p>Notice that LaTeX, Atom and R (all below) each have their own <em>internal</em> package managers (as do many other software ecosystems). If you’re installing a package <em>for</em> either of those, use the corresponding ecosystem package manager, <em>not</em> your system-wide program.</p>
+</div>
+<div id="text-editor" class="section level3">
+<h3>Text Editor</h3>
+<p><a class="btn btn-info" href="https://atom.io" role="button">Install Atom</a></p>
+<p>Whenever we write something in this class, it will be in <a href="http://en.wikipedia.org/wiki/Plain_text">plain text</a>. Plain text, roughly speaking, consists <em>directly</em> and only of letters, encoded in an open standard.</p>
+<p>This may seem antiquated, but has several advantages:</p>
+<ul>
+<li>Plain text can easily be versioned by computer software such as <a href="http://git-scm.com">git</a>.</li>
+<li>Plain text is transparent to the user: it is <em>human-readable</em>. For comparison, try opening a <code>*.doc</code> in a text editor, and see whether you can make out any meaning.</li>
+<li>Plain text is lightweight and robust. File sizes and memory footprint are tiny.</li>
+<li>Plain text files future-proof your work and data. <code>*.txt</code>, or, equivalently for data, <code>*.csv</code> can be opened and edited on pretty much any computer today, could be 30 years go, today, and probably still will be widely accessible in 30 years time.</li>
+</ul>
+<p>Most operating systems ship with a text editor, but they are quite basic and can be cumbersome to use. Specialized text editors (or just editors) offer more functionality geared towards technical writing or software development.</p>
+<p>There are many editors out there, and people have <a href="https://en.wikipedia.org/wiki/Editor_war">strong views on which is best</a>. In some ways, this is surprising, because of all the software used in collaborative writing or development, <em>editors</em> are the tool that needs the least standardisation. Playing off the advantages of plain text files, everyone can use what works best for them, because they all output the <em>exact</em> same thing: a <code>*.txt</code>.</p>
+<p>You are therefore free to choose your own text editor.</p>
+<p>Atom has the advantage of being relatively easy to use, free and open source and relatively widely supported. It also comes with some nice Git(Hub) integration.</p>
+<p>Atom, as most editors, has a modular design. Many of its features are factored out to separate packages, some of which are contributed by external volunteers.</p>
+<p>Here’s a list of packages you might also want to install:</p>
+<ul>
+<li><code>atom-beautify</code></li>
+<li><code>atom-html-preview</code></li>
+<li><code>document-outline</code></li>
+<li><code>git-plus</code></li>
+<li><code>language-knitr</code></li>
+<li><code>language-latex</code></li>
+<li><code>latex</code></li>
+<li><code>language-markdown</code></li>
+<li><code>merge-conflicts</code></li>
+<li><code>minimap-split-diff</code></li>
+</ul>
+<div id="resources-4" class="section level4">
+<h4>Resources</h4>
+<ul>
+<li><a href="https://www.youtube.com/watch?v=U5POoGSrtGg">Atom Getting Started Video</a></li>
+<li><a href="https://discuss.atom.io/t/welcome-to-discuss-atom-io/4">Atom Forums</a></li>
+<li><a href="https://flight-manual.atom.io/getting-started/sections/why-atom/">Atom Flight Manual</a> (only Chapters 1-2!)</li>
+</ul>
+</div>
+</div>
+<div id="ide" class="section level3">
+<h3>R Integrated Development Environment (IDE)</h3>
+<p><a class="btn btn-info" href="https://www.rstudio.com/products/rstudio/download/#download" role="button">Install RStudio</a></p>
+<div class="alert alert-warning" role="alert">
+<p><em>Before</em> installing RStudio, you must first install R (see below). We may, for now, not use R much by itself, but it can be easier to use all the other tools inside of RStudio, rather than separately.</p>
+</div>
+<div id="resources-5" class="section level4">
+<h4>Resources</h4>
+<ul>
+<li>RStudio <a href="https://www.rstudio.com/resources/cheatsheets/#ide">Cheat Sheet</a></li>
+</ul>
+</div>
+</div>
+<div id="source-control-management-scm" class="section level3">
+<h3>Source Control Management (SCM)</h3>
+<p><a class="btn btn-info" href="https://git-scm.com" role="button">Install Git</a></p>
+<p>Git is just a CLI program. It offers all the functionality of git, but you may also install a Git graphical user interface (GUI).</p>
+<p>There plenty of those out there, but one of the easiest is the GitHub Desktop app from GitHub (available only for Windows and macOS).</p>
+<p><a class="btn btn-info" href="https://desktop.github.com" role="button">Install GitHub Desktop</a></p>
+<p>You also need to <em>configure</em> git on your machine, and wherever else you are using Git (such as a SaaS):</p>
+<ul>
+<li><a href="https://help.github.com/articles/setting-your-username-in-git/">Your local machine</a></li>
+<li>RStudio</li>
+<li><a href="https://bren.zendesk.com/hc/en-us/articles/360015826731-How-to-connect-RStudio-Cloud-with-Github">RStudio Cloud</a></li>
+</ul>
+<div id="resources-6" class="section level4">
+<h4>Resources</h4>
+<ul>
+<li><a href="(https://try.github.io/)">Try Git</a></li>
+<li>Jenny Bryan’s <a href="http://happygitwithr.com">Happy Git With R</a> (<em>yes, you should study this completely – until Chapter 33</em>)</li>
+<li><a href="https://help.github.com/articles/closing-issues-via-commit-messages">Referencing issues in commit messages</a></li>
+<li><a href="https://stackoverflow.com/questions/1408450/why-should-i-use-version-control">Why you should use version control</a></li>
+<li><a href="https://stackoverflow.com/questions/2712421/r-and-version-control-for-the-solo-data-analyst">Version control for the solo analyst</a></li>
+<li><a href="http://kbroman.org/github_tutorial/">Git/Github Guide from Karl Broman</a></li>
+</ul>
+</div>
+</div>
+<div id="branching-model" class="section level3">
+<h3>Branching Model</h3>
+<p><a class="btn btn-default" href="https://guides.github.com/introduction/flow/" role="button">GitHub Flow</a></p>
+<p>There is a varied set of practices and tools that have evolved <em>on top of</em> Git. Together with the powerful git scm, it is these practices and tools, that make massively collaborative software development possible.</p>
+<p>One of the simpler practices is GitHub Flow. We will use it to learn the branch and pull-request model.</p>
+<div id="resources-7" class="section level4">
+<h4>Resources</h4>
+<ul>
+<li><a href="https://desktop.github.com">Understanding the GitHub Flow</a></li>
+</ul>
+</div>
+</div>
+<div id="document-conversion" class="section level3">
+<h3>Document Conversion</h3>
+<p><a class="btn btn-info" href="https://pandoc.org" role="button">Install Pandoc</a></p>
+<p>We’ll often want to convert documents from and to different markup formats. For that purpose, we’ll use pandoc.</p>
+<p><a href="https://pandoc.org">Pandoc</a> is, originally, a kind of swiss army knife for text document formats, such as, say, between Microsoft Word and HTML.</p>
+<p>But as part of this work, Pandoc has <em>also</em> defined its own extension (flavor) to Markdown (largey compatible with GFM), including such features as footnotes, captions, references, and other aspects important for technical and scientific writing.</p>
+<p>You should <em>both</em> learn to <em>use</em> Pandoc at the CLI as well as to <em>write</em> in the corresponding Pandoc’s Markdown style.</p>
+<div id="resources-8" class="section level4">
+<h4>Resources</h4>
+<ul>
+<li><a href="https://pandoc.org/MANUAL.html">Pandoc User’s Guide</a></li>
+<li><em>especially</em> <a href="https://pandoc.org/MANUAL.html#pandocs-markdown">Pandoc’s Markdown</a></li>
+</ul>
+</div>
+</div>
+<div id="typesetting" class="section level3">
+<h3>Typesetting</h3>
+<p><a class="btn btn-info" href="https://www.latex-project.org" role="button">Install LaTeX</a></p>
+<p><a href="http://www.latex-project.org">(La)TeX</a> is strictly speaking a <em>typesetting</em> program, which can create beautiful documents. It has extensive support for all sorts of domain-specific typographic niceties, and is used a lot by academics, especially in math and sciences because.</p>
+<p>However, because LaTeX is quite cumbersome to compose and tends to distract writing with a lot of bells and whistles, we will <em>not</em> learn to write LaTeX directly “by hand”. Instead, we will be using Pandoc to compile our Pandoc Markdown source <em>to</em> PDF (via LaTeX), and, because LaTeX can be slow to compile, we will only do so rarely and towards the end of any given project.</p>
+<p>Still, it is important to learn some of the basics of LaTeX to use it programmatically.</p>
+<div id="resources-9" class="section level4">
+<h4>Resources:</h4>
+<ul>
+<li>Overleaf <a href="https://www.overleaf.com/learn/latex/Learn_LaTeX_in_30_minutes">Learn LaTeX in 30 Minutes</a></li>
+</ul>
+</div>
+</div>
+<div id="bibliography-management" class="section level3">
+<h3>Bibliography Management</h3>
+<p><a class="btn btn-info" href="https://github.com/jgm/pandoc-citeproc" role="button">Install Pandoc Citeproc</a> <a class="btn btn-default" href="https://en.wikipedia.org/wiki/Comparison_of_reference_management_software" role="button">Install a Bibliography Manager of Your Choice</a></p>
+<p>Bibliography management is <em>not</em> the focus of this class.</p>
+<p>It is also one of those tools, where there is no strong reason to standardize on any one program, so as long as the bibliography manager exports to one of the formats <a href="https://pandoc.org/MANUAL.html#citations">that pandoc can ingest</a>.</p>
+<p>Check if your bibliography manager can export to at least one of these formats.</p>
+<p>If you have a choice, a BibTex or BibLaTeX file (confusingly both named <code>*.bib*</code>) are preferable.</p>
+<div id="resources-10" class="section level4">
+<h4>Resources:</h4>
+<ul>
+<li><a href="https://pandoc.org/MANUAL.html#citations">Pandoc’s Citeproc documentation</a></li>
+</ul>
+</div>
+</div>
+<div id="r" class="section level3">
+<h3>R</h3>
+<p><a class="btn btn-info" href="https://www.r-project.org" role="button">Install R</a></p>
+<div id="resources-11" class="section level4">
+<h4>Resources</h4>
+<ul>
+<li>Work through the RStudio Cloud <a href="https://rstudio.cloud/learn/primers">primers</a></li>
+<li>DataCamp <a href="https://www.datacamp.com/courses/free-introduction-to-r">Introduction to R</a> (free tier)</li>
+<li><a href="http://www.cookbook-r.com">R Cookbook</a></li>
+</ul>
+</div>
+<div id="additional-resources-3" class="section level4">
+<h4>Additional Resources</h4>
+<ul>
+<li>Check out swirl for <a href="https://swirlstats.com">learning R, in R</a>.</li>
+<li>Statistics in R <a href="https://www.coursera.org/specializations/statistics">Coursera course</a></li>
+<li><a href="https://eu.udacity.com/course/data-analysis-with-r--ud651">Data Analysis with R</a></li>
+</ul>
+</div>
+</div>
+<div id="literate-programming" class="section level3">
+<h3>Literate Programming</h3>
+<p><a class="btn btn-info" href="https://yihui.name/knitr/" role="button">Install knitr</a> <a class="btn btn-info" href="https://rmarkdown.rstudio.com" role="button">Install RMarkdown</a></p>
+<div id="resources-12" class="section level4">
+<h4>Resources</h4>
+<ul>
+<li>Yihui Xie <a href="https://yihui.name/knitr/">knitr website</a></li>
+<li>RStudio <a href="https://rmarkdown.rstudio.com">R Markdown</a></li>
+<li>Yihui Xie et al.: <a href="https://bookdown.org/yihui/rmarkdown/">The definitive RMarkdown guide</a></li>
+</ul>
+</div>
+</div>
+<div id="tidyverse" class="section level3">
+<h3>Tidyverse</h3>
+<p><a class="btn btn-info" href="https://www.tidyverse.org" role="button">Install all tidyverse packages</a></p>
+<div id="resources-13" class="section level4">
+<h4>Resources</h4>
+<ul>
+<li>List of <a href="https://www.tidyverse.org/learn/">resources here</a>.</li>
+</ul>
+</div>
+</div>
+<div id="continous-integration-development-cicd" class="section level3">
+<h3>Continous Integration &amp; Development (CI/CD)</h3>
+<p><a class="btn btn-info" href="https://travis-ci.com" role="button">Sign up to Travis CI</a></p>
+<div id="resources-14" class="section level4">
+<h4>Resources</h4>
+<ul>
+<li>Julia Silge’s <a href="https://juliasilge.com/blog/beginners-guide-to-travis/">Beginners Guide</a></li>
+<li>Travis CI: <a href="https://docs.travis-ci.com/user/languages/r/">Building an R Project</a></li>
+</ul>
+</div>
+</div>
+<div id="dependency-management" class="section level3">
+<h3>Dependency Management</h3>
+<p><a class="btn btn-info" href="https://rstudio.github.io/packrat/" role="button">Install packrat</a></p>
+</div>
+</div>
+<div id="moving-to-linux" class="section level2">
+<h2>Moving to Linux</h2>
+<p>Installation and usage may be easier on Unix-compatible operating systems, including macOS and Linux. Getting Windows to play nicely with open source software can be harder, and some convenient system utilities (such as a package manager) are often missing. It <em>is</em> technically possible to use most, if not all, of the tools above on Windows, but they may behave slightly differently, and supporting them may be more involved.</p>
+<p>If you are using a Windows machine, you may consider the following alternatives to get a more Unix-compatible operating system, roughly ranked from easiest to most involved:</p>
+<ol style="list-style-type: decimal">
+<li>Replace your existing operating system with, say, <a href="https://tutorials.ubuntu.com/tutorial/tutorial-install-ubuntu-desktop#0">Ubuntu</a>, a frequently used Linux distribution. Before you do this, make sure that your hardware has good Linux support. This would also delete all of your data and applications, and you might have to choose and use new replacement applications.</li>
+<li>Same as 1, but with a <a href="https://opensource.com/article/18/5/dual-boot-linux">dual boot setup</a>. This way, you can retain both your old operating system, and a new Linux install. However, you always have to restart to switch between the two systems.</li>
+<li>Same as 2, but in a <a href="https://itsfoss.com/install-linux-in-virtualbox/">virtual machine</a> which can run alongside and <em>inside</em> your Windows install. (<a href="https://www.lifewire.com/install-ubuntu-linux-windows-10-steps-2202108">Here</a> are alternative instructions). Apparently, if your computer and Windows 10 version support it, there is also now a fancier/more efficient way to do this via <a href="https://www.windowscentral.com/how-run-linux-distros-windows-10-using-hyper-v">Hyper-V</a>. Carries some performance penalty.</li>
+<li><a href="https://docs.microsoft.com/en-us/windows/wsl/install-win10">Install the Windows Subsystem for Linux (WSL)</a>. This solution is available only for recent versions of Windows 10. It seems pretty elegant, but has some limitations (no GUIs) and may be quite involved.</li>
+<li>Buy an x86 Chromebook and use <a href="https://github.com/dnschneid/crouton">crouton</a> or (better, but still in beta?) <a href="https://www.zdnet.com/article/how-to-add-linux-to-your-chromebook/">crostini</a> to run Linux on your Chromebook.</li>
+<li>Rent a virtual machine (VM, same as 3), but on a rented cloud host. You can access everything through a browser, but there is a (small) fee, depending on your setup.</li>
+</ol>
+<p>There is no guarantee that any of these alternatives or links will work for you; you will have to research them on your own.</p>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
